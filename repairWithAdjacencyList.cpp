@@ -7,9 +7,9 @@
 
 using namespace std;
 
-int gridWidth  = 6;
-int gridHeight = 5;
-int totalSquares = 30;
+int gridWidth  = 4;
+int gridHeight = 4;
+int totalSquares = 16;
 deque <Vector2> visited = {};
 
 
@@ -33,6 +33,31 @@ private:
     set <Vector2, Vector2Compare> vertices;
 
 public:
+
+    void printGraph() const {
+        cout << "=== Graph Adjacency List ===" << endl;
+        cout << "Total vertices: " << vertices.size() << endl << endl;
+        
+        for (const auto& pair : adjacencyList) {
+            Vector2 vertex = pair.first;
+            const vector<Vector2>& neighbors = pair.second;
+            
+            cout << "(" << vertex.x << ", " << vertex.y << ") -> ";
+            
+            if (neighbors.empty()) {
+                cout << "(no neighbors)";
+            } else {
+                for (auto neighbor: neighbors) {
+                    cout << "(" << neighbor.x << ", " << neighbor.y << ") ";
+                }
+            }
+
+            cout << endl;
+        }
+        
+        cout << "=========================" << endl << endl;
+    }
+
     // Add a vertex to the graph
     void addVertex(Vector2 v) {
         vertices.insert(v);
@@ -44,7 +69,6 @@ public:
     // Add an edge between two vertices (bidirectional)
     void addEdge(Vector2 a, Vector2 b) {
         adjacencyList[a].push_back(b);
-        adjacencyList[b].push_back(a);
     }
 
     // Get neighbors of a vertex
@@ -107,7 +131,7 @@ Graph BuildGraph() {
 
 
 
-bool IsValidTile(Vector2 coord) {
+bool IsValidTile(Vector2 coord, Vector2 end) {
 
     if (coord.x < 0 or coord.y < 0) { // Out of bounds
         return false;
@@ -121,7 +145,7 @@ bool IsValidTile(Vector2 coord) {
         return false;
     }
 
-    else if (visited.size() < totalSquares - 1 && coord == endCoord) { // End coord is not valid unless it is the last vertex.
+    else if (visited.size() < totalSquares - 1 && coord == end) { // End coord is not valid unless it is the last vertex.
         return false;
     }
 
@@ -130,7 +154,7 @@ bool IsValidTile(Vector2 coord) {
 
 
 
-deque <Vector2> ValidNeighbors(Vector2 coord) { // Valid means that the snake CAN move there, not necessarily should
+deque <Vector2> ValidNeighbors(Vector2 coord, Vector2 end) { // Valid means that the snake CAN move there, not necessarily should
     deque <Vector2> neighbors {};
 
     Vector2 directions[] = {
@@ -144,7 +168,7 @@ deque <Vector2> ValidNeighbors(Vector2 coord) { // Valid means that the snake CA
 
         Vector2 next = Vector2Add(coord, direction);
 
-        if (IsValidTile(next)) {
+        if (IsValidTile(next, end)) {
             neighbors.push_back(next);
         }
     }
@@ -154,30 +178,30 @@ deque <Vector2> ValidNeighbors(Vector2 coord) { // Valid means that the snake CA
 
 
 
-int AmountOfValidNeighbors(Vector2 coord) {
-    deque <Vector2> neighbors = ValidNeighbors(coord);
+int AmountOfValidNeighbors(Vector2 coord, Vector2 end) {
+    deque <Vector2> neighbors = ValidNeighbors(coord, end);
 
     return neighbors.size();
 }
 
 
 
-deque <Vector2> FindHamiltonianPath() {
-    Vector2 currentCoord = startCoord;
-    visited.push_back(startCoord);
-    deque <Vector2> lastDecisionPoints = {startCoord};
+deque <Vector2> FindHamiltonianPath(Graph graph, Vector2 start, Vector2 end) {
+    Vector2 current = start;
+    visited.push_back(start);
+    deque <Vector2> lastDecisionPoints = {start};
 
     map <Vector2, deque <Vector2>, Vector2Compare> availableMoves;
 
-    while (visited.size() < totalSquares || currentCoord != endCoord) {
+    while (visited.size() < totalSquares || current != end) {
 
-        if (availableMoves.find(currentCoord) == availableMoves.end()) { // Compute available moves for coordinate if not already done.
-            availableMoves[currentCoord] = ValidNeighbors(currentCoord);
+        if (availableMoves.find(current) == availableMoves.end()) { // Compute available moves for coordinate if not already done.
+            availableMoves[current] = ValidNeighbors(current, end);
         }
 
-        deque <Vector2>& moves = availableMoves[currentCoord]; // This is a reference and not a copy because of the "&" symbol.
+        deque <Vector2>& moves = availableMoves[current]; // This is a reference and not a copy because of the "&" symbol.
 
-        cout << "current: " << "(" << currentCoord.x << ", " << currentCoord.y << ")" << " Available: ";
+        cout << "current: " << "(" << current.x << ", " << current.y << ")" << " Available: ";
         for (Vector2 move : moves) {
             cout << "(" << move.x << ", " << move.y << ") ";
         }
@@ -187,7 +211,7 @@ deque <Vector2> FindHamiltonianPath() {
             int AmountOfValidMoves = moves.size();
 
             if (AmountOfValidMoves >= 2) {
-                lastDecisionPoints.push_back(currentCoord);
+                lastDecisionPoints.push_back(current);
             }
             
             int fewestValidNeighbors = INT_MAX;
@@ -195,7 +219,7 @@ deque <Vector2> FindHamiltonianPath() {
             int bestMoveIdx = -1;
 
             for (int i = 0; i < moves.size(); i++) {
-                int ValidNeighborsCount = AmountOfValidNeighbors(moves[i]);
+                int ValidNeighborsCount = AmountOfValidNeighbors(moves[i], end);
 
                 if (ValidNeighborsCount < fewestValidNeighbors) {
                     fewestValidNeighbors = ValidNeighborsCount;
@@ -204,9 +228,9 @@ deque <Vector2> FindHamiltonianPath() {
                 }
             }
 
-            moves.erase(availableMoves[currentCoord].begin() + bestMoveIdx);
+            moves.erase(availableMoves[current].begin() + bestMoveIdx);
             visited.push_back(bestMove);
-            currentCoord = bestMove;
+            current = bestMove;
         }
         else {
             if (visited.size() <= 1) {
@@ -214,7 +238,7 @@ deque <Vector2> FindHamiltonianPath() {
                 return {};
             }
             
-            cout << "Backtracking from (" << currentCoord.x << ", " << currentCoord.y << ")" << endl;
+            cout << "Backtracking from (" << current.x << ", " << current.y << ")" << endl;
 
             // Remove data on the tiles that we are backtracking past while going to the last decision point.
             while (visited.back() != lastDecisionPoints.back()) {
@@ -224,7 +248,7 @@ deque <Vector2> FindHamiltonianPath() {
                 visited.pop_back();
             }
 
-            currentCoord = lastDecisionPoints.back();
+            current = lastDecisionPoints.back();
             lastDecisionPoints.pop_back();
         }
     }
@@ -244,8 +268,12 @@ deque <Vector2> FindHamiltonianPath() {
 
 
 int main() {
-    deque <Vector2> path = FindHamiltonianPath();
     Graph graph = BuildGraph();
+
+    graph.printGraph();
+    
+
+    deque <Vector2> path = FindHamiltonianPath(graph, startCoord, endCoord);
 
     for (auto coord : path) {
         cout << "(" << coord.x << ", " << coord.y << ")" << endl;

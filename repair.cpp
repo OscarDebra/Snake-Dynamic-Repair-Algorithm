@@ -16,52 +16,6 @@ deque <Vector2> visited = {};
 Vector2 startCoord = Vector2{0, 0};
 Vector2 endCoord = Vector2{0, 1};
 
-class Graph {
-private:
-    map <Vector2, vector <Vector2>, Vector2Compare> adjacencyList;
-    set <Vector2, Vector2Compare> vertices;
-
-public:
-    // Add a vertex to the graph
-    void addVertex(Vector2 v) {
-        vertices.insert(v);
-        if (adjacencyList.find(v) == adjacencyList.end()) {
-            adjacencyList[v] = {};
-        }
-    }
-
-    // Add an edge between two vertices (bidirectional)
-    void addEdge(Vector2 a, Vector2 b) {
-        adjacencyList[a].push_back(b);
-        adjacencyList[b].push_back(a);
-    }
-
-    // Get neighbors of a vertex
-    vector <Vector2> getNeighbors(Vector2 v) const {
-        auto it = adjacencyList.find(v);
-        if (it != adjacencyList.end()) {
-            return it->second;
-        }
-        return {};
-    }
-
-    // Get all vertices
-    set <Vector2, Vector2Compare> getVertices() const {
-        return vertices;
-    }
-
-    // Check if vertex exists
-    bool hasVertex(Vector2 v) const {
-        return vertices.find(v) != vertices.end();
-    }
-
-    // Get degree (number of neighbors)
-    int degree(Vector2 v) const {
-        auto it = adjacencyList.find(v);
-        return (it != adjacencyList.end()) ? it->second.size() : 0;
-    }
-};
-
 
 
 struct Vector2Compare {
@@ -70,36 +24,6 @@ struct Vector2Compare {
         return a.y < b.y;
     }
 };
-
-Graph BuildGraph() {
-    Graph g;
-
-    vector<Vector2> shape = {
-        {0, 0}, {1, 0}, {2, 0}, {3, 0},
-        {0, 1}, {1, 1}, {2, 1}, {3, 1},
-        {0, 2}, {1, 2}, {2, 2}, {3, 2},
-        {0, 3}, {1, 3}, {2, 3}, {3, 3}
-    };
-    
-    // Add all vertices
-    for (Vector2 v : shape) {
-        g.addVertex(v);
-    }
-    
-    // Add edges based on adjacency (4-directional)
-    for (Vector2 v : shape) {
-        Vector2 directions[] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
-        
-        for (Vector2 dir : directions) {
-            Vector2 neighbor = Vector2Add(v, dir);
-            if (g.hasVertex(neighbor)) {
-                g.addEdge(v, neighbor);
-            }
-        }
-    }
-    
-    return g;
-}
 
 
 
@@ -241,7 +165,6 @@ deque <Vector2> FindHamiltonianPath() {
 
 int main() {
     deque <Vector2> path = FindHamiltonianPath();
-    Graph graph = BuildGraph();
 
     for (auto coord : path) {
         cout << "(" << coord.x << ", " << coord.y << ")" << endl;

@@ -23,3 +23,6 @@ run: $(TARGET)
 
 repairrun: 
 	g++ ./repair.cpp -o repair && ./repair && rm ./repair
+
+repair2run:
+	g++ ./repairWithAdjacencyList.cpp -o repairWithAdjacencyList && ./repairWithAdjacencyList && rm ./repairWithAdjacencyList

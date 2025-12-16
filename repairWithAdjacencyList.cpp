@@ -7,16 +7,6 @@
 
 using namespace std;
 
-int gridWidth  = 4;
-int gridHeight = 4;
-int totalSquares = 16;
-deque <Vector2> visited = {};
-
-
-Vector2 startCoord = Vector2{0, 0};
-Vector2 endCoord = Vector2{0, 1};
-
-
 
 struct Vector2Compare {
     bool operator()(const Vector2 a, const Vector2 b) const {
@@ -28,11 +18,10 @@ struct Vector2Compare {
 
 
 class Graph {
-private:
+public:
     map <Vector2, vector <Vector2>, Vector2Compare> adjacencyList;
     set <Vector2, Vector2Compare> vertices;
 
-public:
 
     void printGraph() const {
         cout << "=== Graph Adjacency List ===" << endl;
@@ -54,46 +43,91 @@ public:
 
             cout << endl;
         }
-        
+
         cout << "=========================" << endl << endl;
     }
 
-    // Add a vertex to the graph
-    void addVertex(Vector2 v) {
+
+    void AddVertex(Vector2 v) {
         vertices.insert(v);
-        if (adjacencyList.find(v) == adjacencyList.end()) {
+
+        if (!HasVertex(v)) {
             adjacencyList[v] = {};
         }
     }
 
-    // Add an edge between two vertices (bidirectional)
-    void addEdge(Vector2 a, Vector2 b) {
+
+    void AddEdge(Vector2 a, Vector2 b) {
         adjacencyList[a].push_back(b);
     }
 
-    // Get neighbors of a vertex
-    vector <Vector2> getNeighbors(Vector2 v) const {
+
+    vector <Vector2> GetNeighbors(Vector2 v) const {
         auto it = adjacencyList.find(v);
+
         if (it != adjacencyList.end()) {
-            return it->second;
+            return (*it).second;
         }
+
         return {};
     }
 
-    // Get all vertices
-    set <Vector2, Vector2Compare> getVertices() const {
+
+    set <Vector2, Vector2Compare> GetVertices() const {
         return vertices;
     }
 
-    // Check if vertex exists
-    bool hasVertex(Vector2 v) const {
+
+    bool HasVertex(Vector2 v) const {
         return vertices.find(v) != vertices.end();
     }
 
-    // Get degree (number of neighbors)
-    int degree(Vector2 v) const {
+
+    int Degree(Vector2 v) const { // Amount of neighbours
         auto it = adjacencyList.find(v);
-        return (it != adjacencyList.end()) ? it->second.size() : 0;
+        return (it != adjacencyList.end()) ? (*it).second.size() : 0; // "Second" is the Value of the map, first is the key.
+    }
+
+    bool IsValidTile(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end) {
+
+        if (!HasVertex(v)) {
+        return false;
+        }
+
+        if (find(visited.begin(), visited.end(), v) != visited.end()) { // Look for the coord in the list of coords already visited
+            return false;
+        }
+
+        if (visited.size() < totalVertices - 1 && v == end) { // End coord is not valid unless it is the last vertex.
+            return false;
+        }
+
+        return true;
+    }
+
+
+    vector <Vector2> GetValidNeighbors(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end) {
+        vector <Vector2> neighbors {};
+      
+        vector<Vector2> graphNeighbors = GetNeighbors(v);
+
+        for (Vector2 neighbor : graphNeighbors) {
+
+            if (IsValidTile(neighbor, visited, totalVertices, end)) {
+                neighbors.push_back(neighbor);
+            }
+        }
+        
+        return neighbors;
+    }
+
+
+
+    int GetAmountOfValidNeighbors(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end) {
+
+        vector <Vector2> neighbors = GetValidNeighbors(v, visited, totalVertices, end);
+
+        return neighbors.size();
     }
 };
 
@@ -108,20 +142,21 @@ Graph BuildGraph() {
         {0, 2}, {1, 2}, {2, 2}, {3, 2},
         {0, 3}, {1, 3}, {2, 3}, {3, 3}
     };
-    
+
     // Add all vertices
     for (Vector2 v : shape) {
-        g.addVertex(v);
+        g.AddVertex(v);
     }
     
-    // Add edges based on adjacency (4-directional)
+    // Add edges based on adjacency
     for (Vector2 v : shape) {
         Vector2 directions[] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
         
-        for (Vector2 dir : directions) {
-            Vector2 neighbor = Vector2Add(v, dir);
-            if (g.hasVertex(neighbor)) {
-                g.addEdge(v, neighbor);
+        for (Vector2 direction : directions) {
+            Vector2 neighbor = Vector2Add(v, direction);
+
+            if (g.HasVertex(neighbor)) {
+                g.AddEdge(v, neighbor);
             }
         }
     }
@@ -131,75 +166,21 @@ Graph BuildGraph() {
 
 
 
-bool IsValidTile(Vector2 coord, Vector2 end) {
 
-    if (coord.x < 0 or coord.y < 0) { // Out of bounds
-        return false;
-    }
-
-    else if (coord.x >= gridWidth or coord.y >= gridHeight) { // Out of bounds
-        return false;
-    }
-
-    else if (find(visited.begin(), visited.end(), coord) != visited.end()) { // Look for the coord in the list of coords already visited
-        return false;
-    }
-
-    else if (visited.size() < totalSquares - 1 && coord == end) { // End coord is not valid unless it is the last vertex.
-        return false;
-    }
-
-    return true;
-}
-
-
-
-deque <Vector2> ValidNeighbors(Vector2 coord, Vector2 end) { // Valid means that the snake CAN move there, not necessarily should
-    deque <Vector2> neighbors {};
-
-    Vector2 directions[] = {
-        {0, -1},
-        {0, 1},
-        {-1, 0},
-        {1, 0}
-    };
-
-    for (Vector2 direction : directions) {
-
-        Vector2 next = Vector2Add(coord, direction);
-
-        if (IsValidTile(next, end)) {
-            neighbors.push_back(next);
-        }
-    }
-    
-    return neighbors;
-};
-
-
-
-int AmountOfValidNeighbors(Vector2 coord, Vector2 end) {
-    deque <Vector2> neighbors = ValidNeighbors(coord, end);
-
-    return neighbors.size();
-}
-
-
-
-deque <Vector2> FindHamiltonianPath(Graph graph, Vector2 start, Vector2 end) {
+deque <Vector2> FindHamiltonianPath(Graph g, Vector2 start, Vector2 end) {
     Vector2 current = start;
-    visited.push_back(start);
+    int totalVertices = g.vertices.size();
+    deque <Vector2> visited = {start};
     deque <Vector2> lastDecisionPoints = {start};
+    map <Vector2, vector <Vector2>, Vector2Compare> availableMoves;
 
-    map <Vector2, deque <Vector2>, Vector2Compare> availableMoves;
-
-    while (visited.size() < totalSquares || current != end) {
+    while (visited.size() < totalVertices || current != end) {
 
         if (availableMoves.find(current) == availableMoves.end()) { // Compute available moves for coordinate if not already done.
-            availableMoves[current] = ValidNeighbors(current, end);
+            availableMoves[current] = g.GetValidNeighbors(current, visited, totalVertices, end);
         }
 
-        deque <Vector2>& moves = availableMoves[current]; // This is a reference and not a copy because of the "&" symbol.
+        vector <Vector2>& moves = availableMoves[current]; // This is a reference and not a copy because of the "&" symbol.
 
         cout << "current: " << "(" << current.x << ", " << current.y << ")" << " Available: ";
         for (Vector2 move : moves) {
@@ -219,7 +200,7 @@ deque <Vector2> FindHamiltonianPath(Graph graph, Vector2 start, Vector2 end) {
             int bestMoveIdx = -1;
 
             for (int i = 0; i < moves.size(); i++) {
-                int ValidNeighborsCount = AmountOfValidNeighbors(moves[i], end);
+                int ValidNeighborsCount = g.GetAmountOfValidNeighbors(moves[i], visited, totalVertices, end);
 
                 if (ValidNeighborsCount < fewestValidNeighbors) {
                     fewestValidNeighbors = ValidNeighborsCount;
@@ -233,6 +214,7 @@ deque <Vector2> FindHamiltonianPath(Graph graph, Vector2 start, Vector2 end) {
             current = bestMove;
         }
         else {
+
             if (visited.size() <= 1) {
                 cout << "No Hamiltonian path found!" << endl;
                 return {};
@@ -268,10 +250,12 @@ deque <Vector2> FindHamiltonianPath(Graph graph, Vector2 start, Vector2 end) {
 
 
 int main() {
+    Vector2 startCoord = Vector2{1, 1};
+    Vector2 endCoord = Vector2{0, 1};
+
     Graph graph = BuildGraph();
 
     graph.printGraph();
-    
 
     deque <Vector2> path = FindHamiltonianPath(graph, startCoord, endCoord);
 

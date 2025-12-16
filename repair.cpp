@@ -7,9 +7,9 @@
 
 using namespace std;
 
-int gridWidth  = 6;
-int gridHeight = 5;
-int totalSquares = 30;
+int gridWidth  = 4;
+int gridHeight = 4;
+int totalSquares = 16;
 deque <Vector2> visited = {};
 
 

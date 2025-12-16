@@ -4,7 +4,6 @@
 #include <map>
 #include <set>
 
-
 using namespace std;
 
 
@@ -90,10 +89,6 @@ public:
 
     bool IsValidTile(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end) {
 
-        if (!HasVertex(v)) {
-        return false;
-        }
-
         if (find(visited.begin(), visited.end(), v) != visited.end()) { // Look for the coord in the list of coords already visited
             return false;
         }
@@ -129,19 +124,23 @@ public:
 
         return neighbors.size();
     }
+
+    bool ValidGraph(Vector2 start, Vector2 end) {
+
+        for (const auto pair : adjacencyList) { // Checking if vertices except for the start and end have only one neighbor.
+            if (pair.second.size() < 2 && pair.first != start && pair.first != end) {
+                return false;
+            }   
+        }
+    
+        return true;
+    }
 };
 
 
 
-Graph BuildGraph() {
+Graph BuildGraph(vector <Vector2> shape) {
     Graph g;
-
-    vector<Vector2> shape = {
-        {0, 0}, {1, 0}, {2, 0}, {3, 0},
-        {0, 1}, {1, 1}, {2, 1}, {3, 1},
-        {0, 2}, {1, 2}, {2, 2}, {3, 2},
-        {0, 3}, {1, 3}, {2, 3}, {3, 3}
-    };
 
     // Add all vertices
     for (Vector2 v : shape) {
@@ -168,74 +167,81 @@ Graph BuildGraph() {
 
 
 deque <Vector2> FindHamiltonianPath(Graph g, Vector2 start, Vector2 end) {
-    Vector2 current = start;
-    int totalVertices = g.vertices.size();
-    deque <Vector2> visited = {start};
-    deque <Vector2> lastDecisionPoints = {start};
-    map <Vector2, vector <Vector2>, Vector2Compare> availableMoves;
 
-    while (visited.size() < totalVertices || current != end) {
+    if (g.ValidGraph(start, end)) { // Running pruning before the search to rule out some graphs that cannot have a hamiltonian cycle.
 
-        if (availableMoves.find(current) == availableMoves.end()) { // Compute available moves for coordinate if not already done.
-            availableMoves[current] = g.GetValidNeighbors(current, visited, totalVertices, end);
-        }
+        Vector2 current = start;
+        int totalVertices = g.vertices.size();
+        deque <Vector2> visited = {start};
+        deque <Vector2> lastDecisionPoints = {start};
+        map <Vector2, vector <Vector2>, Vector2Compare> availableMoves;
 
-        vector <Vector2>& moves = availableMoves[current]; // This is a reference and not a copy because of the "&" symbol.
+        while (visited.size() < totalVertices || current != end) {
 
-        cout << "current: " << "(" << current.x << ", " << current.y << ")" << " Available: ";
-        for (Vector2 move : moves) {
-            cout << "(" << move.x << ", " << move.y << ") ";
-        }
-        cout << endl;
-
-        if (!moves.empty()) {
-            int AmountOfValidMoves = moves.size();
-
-            if (AmountOfValidMoves >= 2) {
-                lastDecisionPoints.push_back(current);
+            if (availableMoves.find(current) == availableMoves.end()) { // Compute available moves for coordinate if not already done.
+                availableMoves[current] = g.GetValidNeighbors(current, visited, totalVertices, end);
             }
-            
-            int fewestValidNeighbors = INT_MAX;
-            Vector2 bestMove = {};
-            int bestMoveIdx = -1;
 
-            for (int i = 0; i < moves.size(); i++) {
-                int ValidNeighborsCount = g.GetAmountOfValidNeighbors(moves[i], visited, totalVertices, end);
+            vector <Vector2>& moves = availableMoves[current]; // This is a reference and not a copy because of the "&" symbol.
 
-                if (ValidNeighborsCount < fewestValidNeighbors) {
-                    fewestValidNeighbors = ValidNeighborsCount;
-                    bestMove = moves[i];
-                    bestMoveIdx = i;
+            cout << "current: " << "(" << current.x << ", " << current.y << ")" << " Available: ";
+            for (Vector2 move : moves) {
+                cout << "(" << move.x << ", " << move.y << ") ";
+            }
+            cout << endl;
+
+            if (!moves.empty()) {
+                int AmountOfValidMoves = moves.size();
+
+                if (AmountOfValidMoves >= 2) {
+                    lastDecisionPoints.push_back(current);
                 }
-            }
+                
+                int fewestValidNeighbors = INT_MAX;
+                Vector2 bestMove = {};
+                int bestMoveIdx = -1;
 
-            moves.erase(availableMoves[current].begin() + bestMoveIdx);
-            visited.push_back(bestMove);
-            current = bestMove;
+                for (int i = 0; i < moves.size(); i++) {
+                    int ValidNeighborsCount = g.GetAmountOfValidNeighbors(moves[i], visited, totalVertices, end);
+
+                    if (ValidNeighborsCount < fewestValidNeighbors) {
+                        fewestValidNeighbors = ValidNeighborsCount;
+                        bestMove = moves[i];
+                        bestMoveIdx = i;
+                    }
+                }
+
+                moves.erase(availableMoves[current].begin() + bestMoveIdx);
+                visited.push_back(bestMove);
+                current = bestMove;
+            }
+            else {
+
+                if (visited.size() <= 1) {
+                    cout << "No Hamiltonian path found!" << endl;
+                    return {};
+                }
+                
+                cout << "Backtracking from (" << current.x << ", " << current.y << ")" << endl;
+
+                // Remove data on the tiles that we are backtracking past while going to the last decision point.
+                while (visited.back() != lastDecisionPoints.back()) {
+                    cout << "Erasing: " << "(" << visited.back().x << ", " << visited.back().y << ") " << endl;
+
+                    availableMoves.erase(visited.back());
+                    visited.pop_back();
+                }
+
+                current = lastDecisionPoints.back();
+                lastDecisionPoints.pop_back();
+            }
         }
-        else {
 
-            if (visited.size() <= 1) {
-                cout << "No Hamiltonian path found!" << endl;
-                return {};
-            }
-            
-            cout << "Backtracking from (" << current.x << ", " << current.y << ")" << endl;
-
-            // Remove data on the tiles that we are backtracking past while going to the last decision point.
-            while (visited.back() != lastDecisionPoints.back()) {
-                cout << "Erasing: " << "(" << visited.back().x << ", " << visited.back().y << ") " << endl;
-
-                availableMoves.erase(visited.back());
-                visited.pop_back();
-            }
-
-            current = lastDecisionPoints.back();
-            lastDecisionPoints.pop_back();
-        }
+        return visited;
     }
 
-    return visited;
+    cout << "No hamiltonian cycle possible, determined via pruning" << endl;
+    return {};
 }
 
 
@@ -250,10 +256,18 @@ deque <Vector2> FindHamiltonianPath(Graph g, Vector2 start, Vector2 end) {
 
 
 int main() {
-    Vector2 startCoord = Vector2{1, 1};
+    Vector2 startCoord = Vector2{0, 2};
     Vector2 endCoord = Vector2{0, 1};
 
-    Graph graph = BuildGraph();
+    vector <Vector2> shape = {
+                        {2, 0}, {3, 0},
+        {0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1},
+        {0, 2}, {1, 2},         {3, 2}, {4, 2},
+                {1, 3}, {2, 3}, {3, 3}, {4, 3},
+                        {2, 4}, {3, 4}, {4, 4}
+    };
+
+    Graph graph = BuildGraph(shape);
 
     graph.printGraph();
 

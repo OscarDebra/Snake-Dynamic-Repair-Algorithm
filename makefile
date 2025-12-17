@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17 -Wall -I/opt/homebrew/Cellar/raylib/5.5/include
+CFLAGS = -std=c++23 -Wall -I/opt/homebrew/Cellar/raylib/5.5/include
 LDFLAGS = -L/opt/homebrew/Cellar/raylib/5.5/lib -lraylib
 TARGET = main
 

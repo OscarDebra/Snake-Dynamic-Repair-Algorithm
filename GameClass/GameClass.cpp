@@ -2,17 +2,19 @@
 #include <iostream>
 #include <deque>
 
-void Game::Draw() {
+using namespace std;
+
+void Game::Draw(float speed) { // Don't even try to change the order
     ClearBackground(black);
 
-    if (!won) food.Draw(); // Keep the order like this
+    if (!won) food.Draw();
     snake.Draw();
     if (won) DrawWinScreen();
 
     DrawCycle();
     // DrawGrid();
 
-    DrawUI();
+    DrawUI(speed);
 }
 
 
@@ -33,7 +35,7 @@ void Game::DrawCycle() const {
             DrawLineV(start, end, darkGreen);
         }
 
-        // Draw closing edge
+        // Draw last edge
         Vector2 lastVertex = {
             gamePadding + cycle.back().x * cellSize + cellSize / 2,
             gamePadding + cycle.back().y * cellSize + cellSize / 2
@@ -56,9 +58,13 @@ void Game::DrawGrid () const {
 }
 
 
-void Game::DrawUI() const {
+void Game::DrawUI(float speed) const {
     DrawText("AI plays snake", gamePadding, gamePadding - 50, 40, green);
+
     DrawText(TextFormat("%i", score), gamePadding, gamePadding + cellSize*gridHeight + 10, 40, green);
+
+    int textWidth = MeasureText("Speed: 20.00", 40);
+    DrawText(TextFormat("Speed: %s", speed > 0.01 ? TextFormat("%.2f", 1/speed) : "WARP"), gamePadding + gridWidth*cellSize - textWidth, gamePadding + cellSize*gridHeight + 10, 40, green);
 }
 
 void Game::DrawWinScreen() const {
@@ -87,7 +93,7 @@ void Game::Update() {
         CheckFoodCollision();
         snake.Grow();
         CheckEdgeCollision();
-        CheckSelfCollision();
+        CheckSnakeCollision();
     }
 }
 
@@ -99,7 +105,8 @@ void Game::CheckFoodCollision() {
 
         if ((int)snake.body.size() == (int)(gridWidth * gridHeight)) {
             Win();
-        } else {
+        } 
+        else {
             food.position = food.GetFoodPos(snake.body);
         }
     }
@@ -114,7 +121,7 @@ void Game::CheckEdgeCollision() {
 }
 
 
-void Game::CheckSelfCollision() {
+void Game::CheckSnakeCollision() {
     deque<Vector2> headlessBody = snake.body;
     if (!headlessBody.empty()) headlessBody.pop_front();
     if (ElementInDeque(snake.body[0], headlessBody)) {

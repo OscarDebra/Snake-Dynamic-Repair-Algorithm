@@ -30,15 +30,16 @@ public:
     int moves;
 
     Game() = default; // Nothing to construct
+
+    void Draw(float speed);
     void DrawCycle() const;
     void DrawGrid() const;
-    void DrawUI() const;
+    void DrawUI(float speed) const;
     void DrawWinScreen() const;
-    void Draw();
     void Update();
     void CheckFoodCollision();
     void CheckEdgeCollision();
-    void CheckSelfCollision();
+    void CheckSnakeCollision();
     void GameOver();
     void NewGame();
     void Win();

@@ -1,13 +1,9 @@
 #include "/System/Volumes/Data/opt/homebrew/Cellar/raylib/5.5/include/raylib.h"
-#include "/System/Volumes/Data/opt/homebrew/Cellar/raylib/5.5/include/raymath.h"
 #include <iostream>
 #include <deque>
 #include <ctime>
 #include "Variables/Variables.h"
-#include "SnakeClass/SnakeClass.h"
-#include "FoodClass/FoodClass.h"
 #include "GameClass/GameClass.h"
-#include "GraphClass/GraphClass.h"
 
 using namespace std;
 
@@ -26,18 +22,16 @@ int main() {
     InitWindow(gamePadding*2 + cellSize*gridWidth, gamePadding*2 + cellSize*gridHeight, "Snake game");
     SetTargetFPS(10000);
     bool ready = false;
-    float speed = 0.01f;
+    float speed = 0.05f;
     Game game;
 
     while (!WindowShouldClose()) {
-        deque <Vector2> cycle = game.snake.cycle;
-        BeginDrawing();
 
-        if (IsKeyPressed(KEY_UP)) {
-            speed += 0.1f;
-        };
-        if (IsKeyPressed(KEY_DOWN)) {
-            speed -= 0.1f;
+        if (IsKeyPressed(KEY_UP) && speed > 0.0f) {
+            speed -= 0.05f;
+        }
+        else if (IsKeyPressed(KEY_DOWN) && speed < 1.0f) {
+            speed += 0.05f;
         };
 
         ready = Await(speed);
@@ -46,9 +40,9 @@ int main() {
             game.Update();
         }
 
-        game.Draw();
+        BeginDrawing();
+        game.Draw(speed);
         EndDrawing();
-
     }
 
     CloseWindow();

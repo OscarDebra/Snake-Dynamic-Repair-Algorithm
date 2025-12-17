@@ -7,7 +7,7 @@
 #include <random>
 
 
-static deque<Vector2> SetInitialBody() {
+deque <Vector2> Snake::SetInitialBody() {
     float x = ceil(gridWidth / 2.0f);
     float y = ceil(gridHeight / 2.0f) - 1;
 
@@ -122,15 +122,8 @@ Vector2 Snake::GenerateMove(Vector2 foodPos) {
         cycleDir = *nextNextIt - currentPos;
     }
 
-    // In late game, always follow the cycle
-    if (body.size() > (gridWidth * gridHeight) / 2) {
-        return cycleDir;
-    }
+    return cycleDir;
 
-    // If the cycle direction is toward the food, follow it
-    if ((moveOnX && cycleDir == dirToFoodX) || (moveOnY && cycleDir == dirToFoodY)) {
-        return cycleDir;
-    }
 
     // Try to find a cutting move toward the food
     Vector2 bestMove = CutForward(direction, currentPos, foodPos);

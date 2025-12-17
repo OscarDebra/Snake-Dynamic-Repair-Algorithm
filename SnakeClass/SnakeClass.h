@@ -13,6 +13,7 @@ public:
     int input;
     int cycleRowWidth;
 
+    static deque<Vector2> SetInitialBody();
     Snake();
     Vector2 CenterOf(Vector2 seg);
     Vector2 CornerOf(Vector2 seg);

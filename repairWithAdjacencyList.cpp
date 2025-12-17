@@ -125,7 +125,7 @@ public:
         return neighbors.size();
     }
 
-    bool ValidGraph(Vector2 start, Vector2 end) {
+    bool IsValidGraph(Vector2 start, Vector2 end) {
 
         for (const auto pair : adjacencyList) { // Checking if vertices except for the start and end have only one neighbor.
             if (pair.second.size() < 2 && pair.first != start && pair.first != end) {
@@ -142,12 +142,12 @@ public:
 Graph BuildGraph(vector <Vector2> shape) {
     Graph g;
 
-    // Add all vertices
+    // Add vertices
     for (Vector2 v : shape) {
         g.AddVertex(v);
     }
     
-    // Add edges based on adjacency
+    // Add edges
     for (Vector2 v : shape) {
         Vector2 directions[] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
         
@@ -165,10 +165,9 @@ Graph BuildGraph(vector <Vector2> shape) {
 
 
 
-
 deque <Vector2> FindHamiltonianPath(Graph g, Vector2 start, Vector2 end) {
 
-    if (g.ValidGraph(start, end)) { // Running pruning before the search to rule out some graphs that cannot have a hamiltonian cycle.
+    if (g.IsValidGraph(start, end)) { // Running pruning before the search to rule out some graphs that cannot have a hamiltonian cycle.
 
         Vector2 current = start;
         int totalVertices = g.vertices.size();
@@ -256,15 +255,15 @@ deque <Vector2> FindHamiltonianPath(Graph g, Vector2 start, Vector2 end) {
 
 
 int main() {
-    Vector2 startCoord = Vector2{0, 2};
+    Vector2 startCoord = Vector2{-1, 2};
     Vector2 endCoord = Vector2{0, 1};
 
     vector <Vector2> shape = {
-                        {2, 0}, {3, 0},
-        {0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1},
-        {0, 2}, {1, 2},         {3, 2}, {4, 2},
-                {1, 3}, {2, 3}, {3, 3}, {4, 3},
-                        {2, 4}, {3, 4}, {4, 4}
+                            {2, 0}, {3, 0},
+            {0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1},
+   {-1, 2}, {0, 2}, {1, 2},         {3, 2}, {4, 2},
+                    {1, 3}, {2, 3}, {3, 3}, {4, 3},
+                            {2, 4}, {3, 4}, {4, 4}
     };
 
     Graph graph = BuildGraph(shape);

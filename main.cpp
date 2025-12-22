@@ -39,7 +39,7 @@ int main() {
         };
 
         switch(gameState) {
-            case 0:
+            case 0: // Manual speed
                 if (IsKeyPressed(KEY_RIGHT)) {
                     ready = true;
                 }
@@ -47,15 +47,15 @@ int main() {
                     ready = false;
                 }
                 break;
-            case 1:
+            case 1: // 5mps
                 interval = 0.2;
                 ready = IsReady(interval);
                 break;
-            case 2:
+            case 2: // 20mps
                 interval = 0.05;
                 ready = IsReady(interval);
                 break;
-            case 3:
+            case 3: // WARP
                 interval = 0;
                 ready = IsReady(interval);
                 break;

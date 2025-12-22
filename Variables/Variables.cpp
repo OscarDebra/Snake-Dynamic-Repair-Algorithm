@@ -2,7 +2,7 @@
 
 Color backgroundColor = {0, 0, 0, 255};
 Color cycleColor = {200, 196, 0, 255};
-Color snakeColor = {48, 98, 48, 255};
+Color snakeColor = {0, 0, 170, 255};
 Color foodColor = { 255, 0, 0, 255};
 Color textColor = {204, 204, 204, 255};
 Color borderColor = {80, 180, 80, 255};

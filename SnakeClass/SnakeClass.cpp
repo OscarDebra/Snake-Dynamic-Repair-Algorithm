@@ -60,7 +60,7 @@ Vector2 Snake::CornerOf(Vector2 seg, int horizontalGamePadding) {
 
 
 void Snake::Draw(int horizontalGamePadding) {
-    float snakeThickness = cellSize*0.85f;
+    float snakeThickness = cellSize*0.75f;
 
     for (int i = 1; i < (int)body.size(); i++) {
         Vector2 a = CenterOf(body[i], horizontalGamePadding);

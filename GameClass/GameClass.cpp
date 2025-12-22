@@ -10,12 +10,13 @@ using namespace std;
 void Game::Draw(int gameState, int horizontalGamePadding, int windowWidth) { // Don't even try to change the order
     ClearBackground(backgroundColor);
 
+    // DrawGrid(horizontalGamePadding);
+
     if (!won) food.Draw(horizontalGamePadding);
     snake.Draw(horizontalGamePadding);
     if (won) DrawWinScreen(horizontalGamePadding);
 
     DrawCycle(horizontalGamePadding);
-    // DrawGrid(horizontalGamePadding);
     DrawBorder(horizontalGamePadding);
 
     DrawUI(gameState, horizontalGamePadding, windowWidth);
@@ -53,11 +54,11 @@ void Game::DrawCycle(int horizontalGamePadding) const {
 }
 
 void Game::DrawGrid (int horizontalGamePadding) const {
-        for (int x = horizontalGamePadding; x <= gridWidth*cellSize + horizontalGamePadding; x += cellSize) { // vertical lines
-            DrawLine(x, horizontalGamePadding, x, gridHeight*cellSize + horizontalGamePadding, borderColor);
+        for (int x = horizontalGamePadding; x <= pixelGridWidth + horizontalGamePadding; x += cellSize) { // vertical lines
+            DrawLine(x, verticalGamePadding, x, pixelGridHeight + verticalGamePadding, borderColor);
         }
-        for (int y = verticalGamePadding; y <= gridHeight*cellSize + verticalGamePadding; y += cellSize) { // horizontal lines
-            DrawLine(verticalGamePadding, y, gridWidth*cellSize + verticalGamePadding, y, borderColor);
+        for (int y = verticalGamePadding; y <= pixelGridHeight + verticalGamePadding; y += cellSize) { // horizontal lines
+            DrawLine(horizontalGamePadding, y, pixelGridWidth + horizontalGamePadding, y, borderColor);
         }
 }
 
@@ -71,7 +72,7 @@ void Game::DrawUI(int gameState, int horizontalGamePadding, int windowWidth) con
 
     DrawText(TextFormat("%i", score), offset, verticalGamePadding*2 + cellSize*gridHeight - textSize - offset, textSize, textColor);
 
-    textWidth = MeasureText("Speed: WARP", 40);
+    textWidth = MeasureText("Speed: 20mps", 40);
 
     switch(gameState) {
         case 0:

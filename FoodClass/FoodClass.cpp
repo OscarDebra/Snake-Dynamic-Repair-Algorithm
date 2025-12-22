@@ -27,9 +27,9 @@ Food::Food(const deque<Vector2> snakeBody) {
 
 
 void Food::Draw(int horizontalGamePadding) {
-    float scale = cellSize - cellSize / 8.0f;
+    float scale = cellSize*0.75;
     Vector2 pos = {
-        horizontalGamePadding + position.x * cellSize + cellSize / 16.0f,
+        horizontalGamePadding + position.x*cellSize + cellSize / 16.0f,
         verticalGamePadding + position.y * cellSize + cellSize / 16.0f
     };
 

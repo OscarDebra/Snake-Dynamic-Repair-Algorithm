@@ -19,7 +19,10 @@ bool Await(double interval) {
 
 
 int main() {
-    InitWindow(gamePadding*2 + cellSize*gridWidth, gamePadding*2 + cellSize*gridHeight, "Snake game");
+    int windowWidth = getWindowWidth();
+    int horizontalGamePadding = getHorizontalGamePadding(windowWidth); // We declare widowWidth and horizontalGamePadding in main because there is some logic required in getting their value
+
+    InitWindow(windowWidth, windowHeight, "Snake game");
     SetTargetFPS(10000);
     bool ready = false;
     float speed = 0.05f;
@@ -41,7 +44,7 @@ int main() {
         }
 
         BeginDrawing();
-        game.Draw(speed);
+        game.Draw(speed, horizontalGamePadding, windowWidth);
         EndDrawing();
     }
 

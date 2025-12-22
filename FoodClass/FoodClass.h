@@ -9,7 +9,7 @@ public:
     Food();
     Food(std::deque<Vector2> snakeBody);
 
-    void Draw();
+    void Draw(int horizontalGamePadding);
     Vector2 GetRandomPos();
     Vector2 GetFoodPos(std::deque<Vector2> snakeBody);
 };

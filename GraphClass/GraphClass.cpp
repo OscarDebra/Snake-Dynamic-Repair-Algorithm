@@ -73,6 +73,7 @@ int Graph::Degree(Vector2 v) const { // Amount of neighbours
     return (it != adjacencyList.end()) ? (*it).second.size() : 0; // "Second" is the Value of the map, first is the key.
 }
 
+
 bool Graph::IsValidTile(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end) {
 
     if (find(visited.begin(), visited.end(), v) != visited.end()) { // Look for the coord in the list of coords already visited
@@ -89,7 +90,7 @@ bool Graph::IsValidTile(Vector2 v, deque <Vector2> visited, int totalVertices, V
 
 vector <Vector2> Graph::GetValidNeighbors(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end) {
     vector <Vector2> neighbors {};
-    
+
     vector<Vector2> graphNeighbors = GetNeighbors(v);
 
     for (Vector2 neighbor : graphNeighbors) {
@@ -98,6 +99,6 @@ vector <Vector2> Graph::GetValidNeighbors(Vector2 v, deque <Vector2> visited, in
             neighbors.push_back(neighbor);
         }
     }
-    
+
     return neighbors;
 };

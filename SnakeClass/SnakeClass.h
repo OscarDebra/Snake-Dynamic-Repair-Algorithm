@@ -15,9 +15,9 @@ public:
 
     static deque<Vector2> SetInitialBody();
     Snake();
-    Vector2 CenterOf(Vector2 seg);
-    Vector2 CornerOf(Vector2 seg);
-    void Draw();
+    Vector2 CenterOf(Vector2 seg, int horizontalGamePadding);
+    Vector2 CornerOf(Vector2 seg, int horizontalGamePadding);
+    void Draw(int horizontalGamePadding);
     void Update();
     void Grow();
     void Reset();

@@ -23,7 +23,7 @@ public:
     Snake snake;
     Food food;
     bool won;
-    int score;
+    int score = 0;
     double winTime;
     int wins;
     int losses;
@@ -31,11 +31,12 @@ public:
 
     Game() = default; // Nothing to construct
 
-    void Draw(float speed);
-    void DrawCycle() const;
-    void DrawGrid() const;
-    void DrawUI(float speed) const;
-    void DrawWinScreen() const;
+    void Draw(float speed, int horizontalGamePadding, int windowWidth);
+    void DrawCycle(int horizontalGamePadding) const;
+    void DrawGrid(int horizontalGamePadding) const;
+    void DrawUI(float speed, int horizontalGamePadding, int windowWidth) const;
+    void DrawWinScreen(int horizontalGamePadding) const;
+    void DrawBorder(int horizontalGamePadding) const;
     void Update();
     void CheckFoodCollision();
     void CheckEdgeCollision();

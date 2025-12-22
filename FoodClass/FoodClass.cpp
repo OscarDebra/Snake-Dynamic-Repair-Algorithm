@@ -26,14 +26,14 @@ Food::Food(const deque<Vector2> snakeBody) {
 }
 
 
-void Food::Draw() {
+void Food::Draw(int horizontalGamePadding) {
     float scale = cellSize - cellSize / 8.0f;
     Vector2 pos = {
-        gamePadding + position.x * cellSize + cellSize / 16.0f,
-        gamePadding + position.y * cellSize + cellSize / 16.0f
+        horizontalGamePadding + position.x * cellSize + cellSize / 16.0f,
+        verticalGamePadding + position.y * cellSize + cellSize / 16.0f
     };
 
-    DrawRectangle(pos.x, pos.y, scale, scale, red);
+    DrawRectangle(pos.x, pos.y, scale, scale, foodColor);
 }
 
 

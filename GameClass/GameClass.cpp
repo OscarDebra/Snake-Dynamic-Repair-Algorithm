@@ -1,81 +1,101 @@
 #include "GameClass.h"
 #include <iostream>
 #include <deque>
+#include "/System/Volumes/Data/opt/homebrew/Cellar/raylib/5.5/include/raylib.h"
 
 using namespace std;
 
-void Game::Draw(float speed) { // Don't even try to change the order
-    ClearBackground(black);
 
-    if (!won) food.Draw();
-    snake.Draw();
-    if (won) DrawWinScreen();
 
-    DrawCycle();
-    // DrawGrid();
+void Game::Draw(float speed, int horizontalGamePadding, int windowWidth) { // Don't even try to change the order
+    ClearBackground(backgroundColor);
 
-    DrawUI(speed);
+    if (!won) food.Draw(horizontalGamePadding);
+    snake.Draw(horizontalGamePadding);
+    if (won) DrawWinScreen(horizontalGamePadding);
+
+    DrawCycle(horizontalGamePadding);
+    // DrawGrid(horizontalGamePadding);
+    DrawBorder(horizontalGamePadding);
+
+    DrawUI(speed, horizontalGamePadding, windowWidth);
 }
 
 
-void Game::DrawCycle() const {
+void Game::DrawCycle(int horizontalGamePadding) const {
     deque<Vector2> cycle = snake.cycle;
     
     if (!cycle.empty()) {
         // Draw lines between consecutive vertices
         for (size_t i = 0; i < cycle.size() - 1; i++) {
             Vector2 start = {
-                gamePadding + cycle[i].x * cellSize + cellSize / 2,
-                gamePadding + cycle[i].y * cellSize + cellSize / 2
+                horizontalGamePadding + cycle[i].x * cellSize + cellSize / 2,
+                verticalGamePadding + cycle[i].y * cellSize + cellSize / 2
             };
             Vector2 end = {
-                gamePadding + cycle[i + 1].x * cellSize + cellSize / 2,
-                gamePadding + cycle[i + 1].y * cellSize + cellSize / 2
+                horizontalGamePadding + cycle[i + 1].x * cellSize + cellSize / 2,
+                verticalGamePadding + cycle[i + 1].y * cellSize + cellSize / 2
             };
-            DrawLineV(start, end, darkGreen);
+            DrawLineV(start, end, cycleColor);
         }
 
         // Draw last edge
         Vector2 lastVertex = {
-            gamePadding + cycle.back().x * cellSize + cellSize / 2,
-            gamePadding + cycle.back().y * cellSize + cellSize / 2
+            horizontalGamePadding + cycle.back().x * cellSize + cellSize / 2,
+            verticalGamePadding + cycle.back().y * cellSize + cellSize / 2
         };
         Vector2 firstVertex = {
-            gamePadding + cycle.front().x * cellSize + cellSize / 2,
-            gamePadding + cycle.front().y * cellSize + cellSize / 2
+            horizontalGamePadding + cycle.front().x * cellSize + cellSize / 2,
+            verticalGamePadding + cycle.front().y * cellSize + cellSize / 2
         };
-        DrawLineV(lastVertex, firstVertex, red);
+        DrawLineV(lastVertex, firstVertex, cycleColor);
     }
 }
 
-void Game::DrawGrid () const {
-        for (int x = gamePadding; x <= gridWidth*cellSize + gamePadding; x += cellSize) { // vertical lines
-            DrawLine(x, gamePadding, x, gridHeight*cellSize + gamePadding, darkGreen);
+void Game::DrawGrid (int horizontalGamePadding) const {
+        for (int x = horizontalGamePadding; x <= gridWidth*cellSize + horizontalGamePadding; x += cellSize) { // vertical lines
+            DrawLine(x, horizontalGamePadding, x, gridHeight*cellSize + horizontalGamePadding, borderColor);
         }
-        for (int y = gamePadding; y <= gridHeight*cellSize + gamePadding; y += cellSize) { // horizontal lines
-            DrawLine(gamePadding, y, gridWidth*cellSize + gamePadding, y, darkGreen);
+        for (int y = verticalGamePadding; y <= gridHeight*cellSize + verticalGamePadding; y += cellSize) { // horizontal lines
+            DrawLine(verticalGamePadding, y, gridWidth*cellSize + verticalGamePadding, y, borderColor);
         }
 }
 
 
-void Game::DrawUI(float speed) const {
-    DrawText("AI plays snake", gamePadding, gamePadding - 50, 40, green);
+void Game::DrawUI(float speed, int horizontalGamePadding, int windowWidth) const {
+    int offset = 15; // Offset of text from the edge of the screen
+    int textSize = 40;
 
-    DrawText(TextFormat("%i", score), gamePadding, gamePadding + cellSize*gridHeight + 10, 40, green);
+    int textWidth = MeasureText("Algorithm plays snake", textSize);
+    DrawText("Algorithm plays snake", (windowWidth - textWidth)/2, offset, textSize, textColor);
 
-    int textWidth = MeasureText("Speed: 20.00", 40);
-    DrawText(TextFormat("Speed: %s", speed > 0.01 ? TextFormat("%.2f", 1/speed) : "WARP"), gamePadding + gridWidth*cellSize - textWidth, gamePadding + cellSize*gridHeight + 10, 40, green);
+    DrawText(TextFormat("%i", score), offset, verticalGamePadding*2 + cellSize*gridHeight - textSize - offset, textSize, textColor);
+
+    textWidth = MeasureText("Speed: WARP", 40);
+    DrawText(TextFormat("Speed: %s", speed > 0.01 ? TextFormat("%.2f", 1/speed) : "WARP"), horizontalGamePadding*2 + gridWidth*cellSize - textWidth - offset, verticalGamePadding*2 + cellSize*gridHeight -textSize - offset, 40, textColor);
 }
 
-void Game::DrawWinScreen() const {
+void Game::DrawWinScreen(int horizontalGamePadding) const {
     const char* msg = "You win!";
     int fontSize = 100;
     Vector2 textSize = MeasureTextEx(GetFontDefault(), msg, fontSize, 0);
-    float x = gamePadding + (cellSize * gridWidth) / 2.0f - textSize.x / 2.0f;
-    float y = gamePadding + (cellSize * gridHeight) / 2.0f - textSize.y / 2.0f;
-    DrawText(msg, (int)x, (int)y, fontSize, yellow);
+    float x = horizontalGamePadding + (cellSize * gridWidth) / 2.0f - textSize.x / 2.0f;
+    float y = verticalGamePadding + (cellSize * gridHeight) / 2.0f - textSize.y / 2.0f;
+    DrawText(msg, (int)x, (int)y, fontSize, cycleColor);
 }
 
+void Game::DrawBorder(int horizontalGamePadding) const {
+    float lineThickness = cellSize*0.1;
+
+    float horizontalOffset = horizontalGamePadding- lineThickness;
+    float verticalOffset = verticalGamePadding - lineThickness;
+
+    float borderWidth = pixelGridWidth + lineThickness*2;
+    float borderHeight = pixelGridHeight + lineThickness*2;
+
+    Rectangle rect = {horizontalOffset, verticalOffset, borderWidth, borderHeight};
+    DrawRectangleLinesEx(rect, lineThickness, borderColor);
+}
 
 void Game::Update() {
     snake.direction = snake.GenerateMove(food.position);

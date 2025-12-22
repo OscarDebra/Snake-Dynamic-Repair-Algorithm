@@ -43,34 +43,34 @@ Snake::Snake() {
 }
 
 
-Vector2 Snake::CenterOf(Vector2 seg) {
+Vector2 Snake::CenterOf(Vector2 seg, int horizontalGamePadding) {
     return {
-        gamePadding + seg.x * cellSize + cellSize / 2,
-        gamePadding + seg.y * cellSize + cellSize / 2
+        horizontalGamePadding + seg.x * cellSize + cellSize / 2,
+        verticalGamePadding + seg.y * cellSize + cellSize / 2
     };
 }
 
 
-Vector2 Snake::CornerOf(Vector2 seg) {
+Vector2 Snake::CornerOf(Vector2 seg, int horizontalGamePadding) {
     return {
-        gamePadding + seg.x * cellSize,
-        gamePadding + seg.y * cellSize
+        horizontalGamePadding + seg.x * cellSize,
+        verticalGamePadding + seg.y * cellSize
     };
 }
 
 
-void Snake::Draw() {
-    float snakeThickness = cellSize - cellSize / 8.0f;
+void Snake::Draw(int horizontalGamePadding) {
+    float snakeThickness = cellSize*0.85f;
 
     for (int i = 1; i < (int)body.size(); i++) {
-        Vector2 a = CenterOf(body[i]);
-        Vector2 b = CenterOf(body[i - 1]);
+        Vector2 a = CenterOf(body[i], horizontalGamePadding);
+        Vector2 b = CenterOf(body[i - 1], horizontalGamePadding);
 
         Vector2 dir = Vector2Normalize(Vector2Subtract(b, a));
         Vector2 extendedA = Vector2Subtract(a, Vector2Scale(dir, snakeThickness / 2.0f));
         Vector2 extendedB = Vector2Add(b, Vector2Scale(dir, snakeThickness / 2.0f));
 
-        DrawLineEx(extendedA, extendedB, snakeThickness, green);
+        DrawLineEx(extendedA, extendedB, snakeThickness, snakeColor);
     }
 }
 
@@ -136,86 +136,6 @@ Vector2 Snake::GenerateMove(Vector2 foodPos) {
     return bestMove;
 }
 
-
-deque <Vector2> Snake::GetCycle() {
-    deque <Vector2> cycle = {};
-    deque <Vector2> row = {};
-    int w = gridWidth;
-    int h = gridHeight;
-    bool flipCycle = false;
-    static std::mt19937 rng(std::random_device{}());
-
-    if (w % 2 == 0 && h % 2 == 0) { // Both width and height are even
-        flipCycle = std::uniform_int_distribution<int>(0, 1)(rng);
-    }
-    else if (w % 2 == 0) { // If only width is even, force height-based
-        flipCycle = false;
-    }
-    else if (h % 2 == 0) { // If only height is even, force width-based
-        flipCycle = true;
-    }
-    else { // Both odd, working algorhithm not implemented yet
-        cout << "Invalid width and height values" << endl;
-        return cycle;
-    }
-
-
-    bool mirrorCycle = std::uniform_int_distribution<int>(0, 1)(rng);
-    bool reverseCycle = std::uniform_int_distribution<int>(0, 1)(rng);
-
-    int outer = flipCycle ? h : w;
-    int inner = flipCycle ? w : h;
-
-    cycleRowWidth = inner;
-
-    for (int outerIdx = 0; outerIdx < outer; ++outerIdx) {
-        for (int innerIdx = 0; innerIdx < inner - 1; ++innerIdx) {
-            Vector2 v;
-            if (flipCycle)
-                v = {(float)innerIdx, (float)outerIdx}; // height-based
-            else
-                v = {(float)outerIdx, (float)innerIdx}; // width-based
-
-            if (mirrorCycle) {
-                v.x = (w - 1) - v.x;
-                v.y = (h - 1) - v.y;
-            }
-
-            row.push_front(v);
-        }
-
-        // Reverse every other row
-        if (outerIdx % 2 == 1) {
-            reverse(row.begin(), row.end());
-        }
-
-        cycle.insert(cycle.end(), row.begin(), row.end());
-        row.clear();
-    }
-
-    // Add the final edge along the last row/column
-    for (int i = (flipCycle ? h : w) - 1; i >= 0; --i) {
-        Vector2 v;
-
-        if (flipCycle)
-            v = {float(inner - 1), (float)i}; // height-based
-        else
-            v = {(float)i, float(inner - 1)}; // width-based
-
-        if (mirrorCycle) {
-            v.x = (w - 1) - v.x;
-            v.y = (h - 1) - v.y;
-        }
-
-        cycle.push_back(v);
-    }
-
-    if (reverseCycle) {
-            reverse(cycle.begin(), cycle.end());
-    }
-
-    return cycle;
-}
 
 
 bool Snake::IsOccupied(const Vector2 pos) {
@@ -303,4 +223,85 @@ Vector2 Snake::CutForward(Vector2 dir, Vector2 pos, Vector2 foodPos) {
     }
 
     return bestDir;
+}
+
+
+deque <Vector2> Snake::GetCycle() {
+    deque <Vector2> cycle = {};
+    deque <Vector2> row = {};
+    int w = gridWidth;
+    int h = gridHeight;
+    bool flipCycle = false;
+    static std::mt19937 rng(std::random_device{}());
+
+    if (w % 2 == 0 && h % 2 == 0) { // Both width and height are even
+        flipCycle = std::uniform_int_distribution<int>(0, 1)(rng);
+    }
+    else if (w % 2 == 0) { // If only width is even, force height-based
+        flipCycle = false;
+    }
+    else if (h % 2 == 0) { // If only height is even, force width-based
+        flipCycle = true;
+    }
+    else { // Both odd, working algorhithm not implemented yet
+        cout << "Invalid width and height values" << endl;
+        return cycle;
+    }
+
+
+    bool mirrorCycle = std::uniform_int_distribution<int>(0, 1)(rng);
+    bool reverseCycle = std::uniform_int_distribution<int>(0, 1)(rng);
+
+    int outer = flipCycle ? h : w;
+    int inner = flipCycle ? w : h;
+
+    cycleRowWidth = inner;
+
+    for (int outerIdx = 0; outerIdx < outer; ++outerIdx) {
+        for (int innerIdx = 0; innerIdx < inner - 1; ++innerIdx) {
+            Vector2 v;
+            if (flipCycle)
+                v = {(float)innerIdx, (float)outerIdx}; // height-based
+            else
+                v = {(float)outerIdx, (float)innerIdx}; // width-based
+
+            if (mirrorCycle) {
+                v.x = (w - 1) - v.x;
+                v.y = (h - 1) - v.y;
+            }
+
+            row.push_front(v);
+        }
+
+        // Reverse every other row
+        if (outerIdx % 2 == 1) {
+            reverse(row.begin(), row.end());
+        }
+
+        cycle.insert(cycle.end(), row.begin(), row.end());
+        row.clear();
+    }
+
+    // Add the final edge along the last row/column
+    for (int i = (flipCycle ? h : w) - 1; i >= 0; --i) {
+        Vector2 v;
+
+        if (flipCycle)
+            v = {float(inner - 1), (float)i}; // height-based
+        else
+            v = {(float)i, float(inner - 1)}; // width-based
+
+        if (mirrorCycle) {
+            v.x = (w - 1) - v.x;
+            v.y = (h - 1) - v.y;
+        }
+
+        cycle.push_back(v);
+    }
+
+    if (reverseCycle) {
+            reverse(cycle.begin(), cycle.end());
+    }
+
+    return cycle;
 }

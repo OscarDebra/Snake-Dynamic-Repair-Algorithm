@@ -8,7 +8,7 @@
 using namespace std;
 
 
-bool Await(double interval) {
+bool IsReady(double interval) {
     double currentTime = GetTime();
     if (currentTime - lastUpdateTime >= interval) {
         lastUpdateTime = currentTime;
@@ -25,26 +25,48 @@ int main() {
     InitWindow(windowWidth, windowHeight, "Snake game");
     SetTargetFPS(10000);
     bool ready = false;
-    float speed = 0.05f;
+    int gameState = 0;
+    float interval = 0.2; 
     Game game;
 
     while (!WindowShouldClose()) {
 
-        if (IsKeyPressed(KEY_UP) && speed > 0.0f) {
-            speed -= 0.05f;
+        if (IsKeyPressed(KEY_UP) && gameState < 3) {
+            gameState += 1;
         }
-        else if (IsKeyPressed(KEY_DOWN) && speed < 1.0f) {
-            speed += 0.05f;
+        else if (IsKeyPressed(KEY_DOWN) && gameState > 0) {
+            gameState -= 1;
         };
 
-        ready = Await(speed);
+        switch(gameState) {
+            case 0:
+                if (IsKeyPressed(KEY_RIGHT)) {
+                    ready = true;
+                }
+                else {
+                    ready = false;
+                }
+                break;
+            case 1:
+                interval = 0.2;
+                ready = IsReady(interval);
+                break;
+            case 2:
+                interval = 0.05;
+                ready = IsReady(interval);
+                break;
+            case 3:
+                interval = 0;
+                ready = IsReady(interval);
+                break;
+        };
 
         if (ready) {
             game.Update();
         }
 
         BeginDrawing();
-        game.Draw(speed, horizontalGamePadding, windowWidth);
+        game.Draw(gameState, horizontalGamePadding, windowWidth);
         EndDrawing();
     }
 

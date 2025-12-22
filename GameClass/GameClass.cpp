@@ -7,7 +7,7 @@ using namespace std;
 
 
 
-void Game::Draw(float speed, int horizontalGamePadding, int windowWidth) { // Don't even try to change the order
+void Game::Draw(int gameState, int horizontalGamePadding, int windowWidth) { // Don't even try to change the order
     ClearBackground(backgroundColor);
 
     if (!won) food.Draw(horizontalGamePadding);
@@ -18,7 +18,7 @@ void Game::Draw(float speed, int horizontalGamePadding, int windowWidth) { // Do
     // DrawGrid(horizontalGamePadding);
     DrawBorder(horizontalGamePadding);
 
-    DrawUI(speed, horizontalGamePadding, windowWidth);
+    DrawUI(gameState, horizontalGamePadding, windowWidth);
 }
 
 
@@ -62,7 +62,7 @@ void Game::DrawGrid (int horizontalGamePadding) const {
 }
 
 
-void Game::DrawUI(float speed, int horizontalGamePadding, int windowWidth) const {
+void Game::DrawUI(int gameState, int horizontalGamePadding, int windowWidth) const {
     int offset = 15; // Offset of text from the edge of the screen
     int textSize = 40;
 
@@ -72,7 +72,21 @@ void Game::DrawUI(float speed, int horizontalGamePadding, int windowWidth) const
     DrawText(TextFormat("%i", score), offset, verticalGamePadding*2 + cellSize*gridHeight - textSize - offset, textSize, textColor);
 
     textWidth = MeasureText("Speed: WARP", 40);
-    DrawText(TextFormat("Speed: %s", speed > 0.01 ? TextFormat("%.2f", 1/speed) : "WARP"), horizontalGamePadding*2 + gridWidth*cellSize - textWidth - offset, verticalGamePadding*2 + cellSize*gridHeight -textSize - offset, 40, textColor);
+
+    switch(gameState) {
+        case 0:
+            DrawText(TextFormat("Speed: MAN"), horizontalGamePadding*2 + gridWidth*cellSize - textWidth - offset, verticalGamePadding*2 + cellSize*gridHeight -textSize - offset, textSize, textColor);
+            break;
+        case 1:
+            DrawText(TextFormat("Speed: 5mps"), horizontalGamePadding*2 + gridWidth*cellSize - textWidth - offset, verticalGamePadding*2 + cellSize*gridHeight -textSize - offset, textSize, textColor);
+            break;
+        case 2:
+            DrawText(TextFormat("Speed: 20mps"), horizontalGamePadding*2 + gridWidth*cellSize - textWidth - offset, verticalGamePadding*2 + cellSize*gridHeight -textSize - offset, textSize, textColor);
+            break;
+        case 3:
+            DrawText(TextFormat("Speed: WARP"), horizontalGamePadding*2 + gridWidth*cellSize - textWidth - offset, verticalGamePadding*2 + cellSize*gridHeight -textSize - offset, textSize, textColor);
+            break;
+    }
 }
 
 void Game::DrawWinScreen(int horizontalGamePadding) const {
@@ -85,9 +99,9 @@ void Game::DrawWinScreen(int horizontalGamePadding) const {
 }
 
 void Game::DrawBorder(int horizontalGamePadding) const {
-    float lineThickness = cellSize*0.1;
+    float lineThickness = 1;
 
-    float horizontalOffset = horizontalGamePadding- lineThickness;
+    float horizontalOffset = horizontalGamePadding - lineThickness;
     float verticalOffset = verticalGamePadding - lineThickness;
 
     float borderWidth = pixelGridWidth + lineThickness*2;

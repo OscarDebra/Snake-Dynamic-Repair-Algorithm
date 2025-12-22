@@ -22,19 +22,19 @@ public:
 
     Snake snake;
     Food food;
-    bool won;
+    bool won = false;
     int score = 0;
     double winTime;
-    int wins;
-    int losses;
-    int moves;
+    int wins = 0;
+    int losses = 0;
+    int moves = 0;
 
     Game() = default; // Nothing to construct
 
-    void Draw(float speed, int horizontalGamePadding, int windowWidth);
+    void Draw(int gameState, int horizontalGamePadding, int windowWidth);
     void DrawCycle(int horizontalGamePadding) const;
     void DrawGrid(int horizontalGamePadding) const;
-    void DrawUI(float speed, int horizontalGamePadding, int windowWidth) const;
+    void DrawUI(int gameState, int horizontalGamePadding, int windowWidth) const;
     void DrawWinScreen(int horizontalGamePadding) const;
     void DrawBorder(int horizontalGamePadding) const;
     void Update();

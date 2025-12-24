@@ -10,8 +10,6 @@ public:
     deque<Vector2> body;
     Vector2 direction;
     bool addSegment;
-    int input;
-    int cycleRowWidth;
 
     static deque<Vector2> SetInitialBody();
     Snake();

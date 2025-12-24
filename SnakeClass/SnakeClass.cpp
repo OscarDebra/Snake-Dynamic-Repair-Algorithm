@@ -75,7 +75,7 @@ void Snake::Draw(int horizontalGamePadding) {
 }
 
 
-void Snake::Update() {
+void Snake::Update() {  
     body.push_front(Vector2Add(body[0], direction));
 }
 
@@ -97,36 +97,38 @@ void Snake::Reset() {
 
 
 Vector2 Snake::GenerateMove(Vector2 foodPos) {
-    Vector2 currentPos = body[0];
+    
+    // Get the next position in the cycle
+    Vector2 current = body[0];
+    auto currentIt = find(cycle.begin(), cycle.end(), current);
+    auto nextIt = next(currentIt);
+    if (nextIt == cycle.end()) nextIt = cycle.begin();
+    Vector2 cycleDir = *nextIt - current;
 
-    Vector2 distanceToFood = foodPos - currentPos;
 
-    bool moveOnX = fabs(distanceToFood.x) > 0.0f;
-    bool moveOnY = fabs(distanceToFood.y) > 0.0f;
+    Vector2 distanceToFood = foodPos - current;
 
     Vector2 dirToFoodX = {distanceToFood.x > 0 ? 1.0f : -1.0f, 0.0f};
     Vector2 dirToFoodY = {0.0f, distanceToFood.y > 0 ? 1.0f : -1.0f};
 
-    // Find current position in cycle
-    auto currentIt = find(cycle.begin(), cycle.end(), currentPos);
 
-    // Get the next position in the cycle
-    auto nextIt = next(currentIt);
-    if (nextIt == cycle.end()) nextIt = cycle.begin();
-    Vector2 cycleDir = *nextIt - currentPos;
+    if (cycleDir == Vector2{1, 0} || cycleDir == Vector2{-1, 0} || cycleDir == Vector2{0, 1} || cycleDir == Vector2{0, -1}) { // As long as cycledir is valid
+    
+        if (dirToFoodX == cycleDir || dirToFoodY == cycleDir) { // Follow the cycle if it takes us towards the food on any axis
+            cout << "Following cycle" << endl;
+            return cycleDir;
+        }
 
-    // Avoid turning back on ourselves
-    if (cycleDir + direction == Vector2{0, 0}) {
-        auto nextNextIt = next(nextIt);
-        if (nextNextIt == cycle.end()) nextNextIt = cycle.begin();
-        cycleDir = *nextNextIt - currentPos;
+        return cycleDir;
     }
 
-    return cycleDir;
+    cout << "Invalid cycle direction, new game started" << endl;
+    return Vector2{0, 0};
+
 
 
     // Try to find a cutting move toward the food
-    Vector2 bestMove = CutForward(direction, currentPos, foodPos);
+    Vector2 bestMove = CutForward(direction, current, foodPos);
     
     // If no valid cutting move found, follow the cycle
     if (bestMove == Vector2{0, 0}) {
@@ -152,7 +154,7 @@ bool Snake::HasFreeSpaceAhead(Vector2 pos) {
             int currentIdx = distance(cycle.begin(), i);
             int cycleSize = cycle.size();
             
-            for (int j = 1; j <= cycleRowWidth; ++j) {
+            for (int j = 1; j <= 3; ++j) {
                 int nextIdx = (currentIdx + j) % cycleSize;
                 
                 if (IsOccupied(cycle[nextIdx])) {
@@ -180,50 +182,6 @@ int Snake::StepsBetween(Vector2 start, Vector2 end) {
     return steps;
 }
 
-
-Vector2 Snake::CutForward(Vector2 dir, Vector2 pos, Vector2 foodPos) {
-    // Possible local directions relative to the current one
-    Vector2 right = { -dir.y,  dir.x };  // rotate +90° (right)
-    Vector2 left  = {  dir.y, -dir.x };  // rotate -90° (left)
-    Vector2 forward = dir;
-
-    vector<Vector2> moves = {forward, left, right};
-    Vector2 bestDir = Vector2{0, 0};
-    int bestSteps = INT_MAX; // Big number
-
-    for (Vector2 move : moves) {
-        Vector2 candPos = pos + move;
-
-        // Check if the move goes backwards in the cycle
-        if (StepsBetween( pos, foodPos) < StepsBetween(candPos, foodPos)) continue;
-
-        // Check if the candidate position is in the cycle
-        auto candIt = find(cycle.begin(), cycle.end(), candPos);
-        if (candIt == cycle.end()) continue;
-
-        // Check if we can continue forward from this position
-        auto nextCandIt = next(candIt);
-        if (nextCandIt == cycle.end()) nextCandIt = cycle.begin();
-        Vector2 nextCandDir = *nextCandIt - candPos;
-
-        // Don't turn back (next direction shouldn't be opposite to current move)
-        if (move + nextCandDir == Vector2{0, 0}) continue;
-
-        // Check if this position is safe (no snake body ahead)
-        if (IsOccupied(candPos)) continue;
-
-        // Calculate steps from this position to food
-        int steps = StepsBetween(candPos, foodPos);
-
-        // Prefer moves that MINIMIZE steps to food
-        if (steps < bestSteps and HasFreeSpaceAhead(candPos)) {
-            bestSteps = steps;
-            bestDir = move;
-        }
-    }
-
-    return bestDir;
-}
 
 
 deque <Vector2> Snake::GetCycle() {
@@ -255,7 +213,6 @@ deque <Vector2> Snake::GetCycle() {
     int outer = flipCycle ? h : w;
     int inner = flipCycle ? w : h;
 
-    cycleRowWidth = inner;
 
     for (int outerIdx = 0; outerIdx < outer; ++outerIdx) {
         for (int innerIdx = 0; innerIdx < inner - 1; ++innerIdx) {

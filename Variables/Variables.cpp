@@ -7,7 +7,7 @@ Color foodColor = { 255, 0, 0, 255};
 Color textColor = {204, 204, 204, 255};
 Color borderColor = {80, 180, 80, 255};
 
-int gridWidth  = 30;
+int gridWidth  = 29;
 int gridHeight = 30;
 double lastUpdateTime = 0;
 

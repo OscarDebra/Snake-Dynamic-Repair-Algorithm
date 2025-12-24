@@ -115,6 +115,11 @@ void Game::DrawBorder(int horizontalGamePadding) const {
 void Game::Update() {
     snake.direction = snake.GenerateMove(food.position);
 
+    if (snake.direction == Vector2{0, 0}) {
+        NewGame();
+    }
+    
+
     if (won) {
         if (GetTime() - winTime >= 3.0) {
             NewGame();

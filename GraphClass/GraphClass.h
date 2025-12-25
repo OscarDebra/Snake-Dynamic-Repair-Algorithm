@@ -19,7 +19,6 @@ public:
         }
     };
 
-
     map <Vector2, vector <Vector2>, Vector2Compare> adjacencyList;
     set <Vector2, Vector2Compare> vertices;
 
@@ -32,4 +31,6 @@ public:
     int Degree(Vector2 v) const;
     bool IsValidTile(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end);
     vector <Vector2> GetValidNeighbors(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end);
+    int GetAmountOfValidNeighbors(Vector2 v, deque <Vector2> visited, int totalVertices, Vector2 end);
+    bool IsValidGraph(Vector2 start, Vector2 end);
 };

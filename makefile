@@ -1,9 +1,9 @@
 CC = g++
-CFLAGS = -std=c++23 -Wall -I/opt/homebrew/Cellar/raylib/5.5/include
+CFLAGS = -std=c++17 -Wall -I/opt/homebrew/Cellar/raylib/5.5/include
 LDFLAGS = -L/opt/homebrew/Cellar/raylib/5.5/lib -lraylib
 TARGET = main
 
-SRCS = main.cpp SnakeClass/SnakeClass.cpp Variables/Variables.cpp Foodclass/FoodClass.cpp GameClass/GameClass.cpp
+SRCS = main.cpp SnakeClass/SnakeClass.cpp Variables/Variables.cpp Foodclass/FoodClass.cpp GameClass/GameClass.cpp GraphClass/GraphClass.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)

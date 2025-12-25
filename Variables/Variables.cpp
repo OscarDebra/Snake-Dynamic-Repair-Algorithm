@@ -2,13 +2,13 @@
 
 Color backgroundColor = {0, 0, 0, 255};
 Color cycleColor = {200, 196, 0, 255};
-Color snakeColor = {0, 0, 170, 255};
+Color snakeColor = {0, 0, 130, 255};
 Color foodColor = { 255, 0, 0, 255};
 Color textColor = {204, 204, 204, 255};
 Color borderColor = {80, 180, 80, 255};
 
-int gridWidth  = 29;
-int gridHeight = 30;
+int gridWidth  = 10;
+int gridHeight = 10;
 double lastUpdateTime = 0;
 
 int minHorizontalGamePadding = 75;
@@ -26,7 +26,7 @@ int windowHeight = verticalGamePadding*2 + pixelGridHeight;
 
 
 int getWindowWidth() {
-    int windowWidth = minHorizontalGamePadding + pixelGridWidth;
+    int windowWidth = minHorizontalGamePadding*2 + pixelGridWidth;
     int minWindowWidth = 500; 
 
     if (windowWidth < minWindowWidth) { // Window width is 500px minimum, recalculate the padding if the board is too skinny so it stays centered

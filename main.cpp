@@ -26,7 +26,7 @@ int main() {
     SetTargetFPS(10000);
     bool ready = false;
     int gameState = 0;
-    float interval = 0.2; 
+    float interval;
     Game game;
 
     while (!WindowShouldClose()) {

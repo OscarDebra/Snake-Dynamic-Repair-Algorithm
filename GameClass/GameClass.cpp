@@ -10,7 +10,7 @@ using namespace std;
 void Game::Draw(int gameState, int horizontalGamePadding, int windowWidth) { // Don't even try to change the order
     ClearBackground(backgroundColor);
 
-    // DrawGrid(horizontalGamePadding);
+    DrawGrid(horizontalGamePadding);
 
     if (!won) food.Draw(horizontalGamePadding);
     snake.Draw(horizontalGamePadding);
